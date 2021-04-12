@@ -1,65 +1,117 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import { useState, useContext } from "react";
+import Head from "next/head";
+import styles from "../styles/Home.module.css";
+import generateHash from "random-hash";
+import firebase from "../firebaseConfig";
+import { useRouter } from "next/router";
+import { ChatContext } from "../contexts/chatContext.js";
 
 export default function Home() {
+  const { username, changeUsername } = useContext(ChatContext);
+  const [rid, setRid] = useState("");
+  const [roomName, setRoomName] = useState("");
+  const [name, setName] = useState(username);
+  const router = useRouter();
+
+  const handleRid = (e) => {
+    setRid(e.target.value);
+  };
+
+  const handleRoomName = (e) => {
+    setRoomName(e.target.value);
+  };
+
+  const handleUsername = (e) => {
+    setName(e.target.value);
+  };
+
+  const createRoom = () => {
+    if (name === "" || roomName === "") return;
+
+    changeUsername(name);
+
+    const newRoomID = generateHash();
+
+    firebase
+      .database()
+      .ref(newRoomID)
+      .set({ name: roomName })
+      .then(() => console.log("Room created!"));
+
+    router.push(`/room/${newRoomID}`);
+  };
+
+  const enterRoom = () => {
+    if (name === "" || rid === "") return;
+
+    changeUsername(name);
+
+    firebase
+      .database()
+      .ref(rid)
+      .once("value")
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          router.push(`/room/${rid}`);
+        } else {
+          console.log("Room does not exist");
+        }
+      });
+  };
+
   return (
-    <div className={styles.container}>
+    <>
       <Head>
-        <title>Create Next App</title>
+        <title>Socket App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <h1 className={styles.title}>Chat App</h1>
+        <label className={styles.label} htmlFor="usernameInput">
+          Enter your username
+        </label>
+        <input
+          id="usernameInput"
+          type="text"
+          placeholder="Frank Ocean"
+          value={name}
+          onChange={handleUsername}
+        />
+        <div className={styles.splitContainer}>
+          <div className={styles.splitCol}>
+            <h2 className={styles.subtitle}>Join Room</h2>
+            <label className={styles.label} htmlFor="roomInput">
+              Enter room ID
+            </label>
+            <input
+              id="roomInput"
+              type="text"
+              placeholder="123"
+              value={rid}
+              onChange={handleRid}
+            />
+            <button className={styles.button} onClick={enterRoom}>
+              Enter Room
+            </button>
+          </div>
+          <div className={styles.splitCol}>
+            <h2 className={styles.subtitle}>Create Room</h2>
+            <label className={styles.label} htmlFor="roomName">
+              Name your room
+            </label>
+            <input
+              id="roomName"
+              type="text"
+              placeholder="cool room"
+              value={roomName}
+              onChange={handleRoomName}
+            />
+            <button className={styles.button} onClick={createRoom}>
+              Create Room
+            </button>
+          </div>
         </div>
       </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+    </>
+  );
 }

@@ -14,3 +14,17 @@ a {
 * {
   box-sizing: border-box;
 }
+
+p, h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+
+label {
+  font-size: 1em;
+}
+
+input {
+  width: 400px;
+  max-width: 100%;
+  margin-bottom: 10px;
+}
