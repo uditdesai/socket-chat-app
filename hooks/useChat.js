@@ -3,7 +3,7 @@ import socketIOClient from "socket.io-client";
 import firebase from "../firebaseConfig";
 
 const NEW_CHAT_MESSAGE_EVENT = "newChatMessage"; // Name of the event
-const SOCKET_SERVER_URL = "http://localhost:4000";
+const SOCKET_SERVER_URL = process.env.serverURL;
 
 const useChat = (rid, userID, username) => {
   const [messages, setMessages] = useState([]); // Sent and received messages

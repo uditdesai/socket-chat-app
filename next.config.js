@@ -7,5 +7,6 @@ module.exports = {
     storageBucket: "socket-chat-40627.appspot.com",
     messagingSenderId: "144706639634",
     appId: "1:144706639634:web:6f3b7f9a93f1af393a85cb",
+    serverURL: "https://intense-headland-66230.herokuapp.com",
   },
 };
